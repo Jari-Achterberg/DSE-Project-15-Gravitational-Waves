@@ -7,4 +7,4 @@ Short description on how to set-up Pycharm with this Github repository
 3. Copy the URL from the Github repository and click 'clone repository'
 4. The project should now be opened in Pycharm (it might take a while)
 5. I'll explain later how to create files and pull/push/merge (this README file should be in there already)
-6. add something
+6. add something else
