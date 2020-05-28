@@ -12,12 +12,17 @@ import numpy as np
 m_earth = 5.9722 * 10 ** 24
 G = 6.67 * 10 ** -11
 mu_earth = m_earth * G / (10 ** 9)
+r_earth = 6378.136
 r_GEO = 42164.136
 T_GEO = 2 * np.pi * np.sqrt(r_GEO ** 3 / mu_earth)
+omega_GEO = np.sqrt(mu_earth / (r_GEO ** 3))
 peri_GTO = 250 #altitude
 apo_GTO = 35786 #altitude
+a_GTO = (peri_GTO + apo_GTO) / 2 + r_earth
+T_GTO = 2 * np.pi * np.sqrt(a_GTO ** 3 / mu_earth)
 d = np.sqrt(r_GEO ** 2 * 3)
-omega_GEO = np.sqrt(mu_earth / (r_GEO ** 3))
+
+
 
 
 def Hohmann():
