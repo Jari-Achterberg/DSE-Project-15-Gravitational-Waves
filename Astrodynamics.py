@@ -3,7 +3,7 @@
 # - 80km corrections
 # - End Of Life manoeuvre
 # - realignment
-# - orbit maintenance
+# - orbit maintenances
 
 
 def Hohmann():
