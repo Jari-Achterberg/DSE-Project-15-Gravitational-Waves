@@ -44,8 +44,8 @@ def Phase_Shift(shift, t_transfer, r_GEO, T_GEO, mu_earth):
     return dT, da, dV
 
 # circularisation
-Vc_GEO = np.sqrt(mu_earth/(r_GEO + r_earth))
-dV_circularisation = (V_apo_GTO ** 2 + Vc_GEO ** 2 - 2 * V_apo_GTO * Vc_GEO * np.cos(i_GTO * np.pi/180))
+Vc_GEO = np.sqrt(mu_earth/r_GEO)
+dV_circularisation = np.sqrt(V_apo_GTO ** 2 + Vc_GEO ** 2 - 2 * V_apo_GTO * Vc_GEO * np.cos(i_GTO * np.pi/180))
 
 # 80 km corrections
 r_dep, r_tar = 35706, 35786
@@ -77,5 +77,5 @@ r2_EOL = r1_EOL + 300       # assume EOL orbit is 300 km higher
 dV_EOL = Hohmann(r1_EOL, r2_EOL, mu_earth, r_earth)
 
 # total
-total_delta_v = dV_EOL + dV_eighty_km + dV_realignment + dV_maintenance + dV_120 + dV_circularisation
+total_delta_v = dV_EOL + dV_eighty_km + 73 * dV_realignment + dV_maintenance + dV_120 + dV_circularisation
 print(total_delta_v)
