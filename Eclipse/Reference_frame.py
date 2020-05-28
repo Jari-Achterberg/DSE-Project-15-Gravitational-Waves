@@ -1,11 +1,19 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 #%%
 ecc_earth = 0.01670861 #Earth eccentricity
 a_earth = 149.6*10**6 # Semi-major axis of Earth [km]
 mu_sun = 1.3271244*10**11 # Gravitational parameter of the sun [km^3s^-2]
 i_earth = 7.155/180*np.pi # Earth inclination w.r.t the sun[rad]
+i_polar = 23.43664/180*np.pi # Earth polar axis inclination
+
 #%%
+Or_p = 200 #Number of points to modelate the orbit
+N_max = 70 #Number of iterations for convergence of the recursive bisection
+
+#%%
+
 def T(mu,a): #orbital period
     '''
     :param mu: Gravitational parameter [km^3s^-2]
@@ -65,13 +73,31 @@ def pos_earth_sun(t,N_max): #Position of the Earth relative to the Sun after t s
         y = np.array(y)
         return y
 
-    E_list = rec_bis(N_max)
+    E_list = rec_bis(N_max) #Get the history of calculated E values [rad]
     #plt.plot(E_list)
     #plt.show()
+    
+    theta_p = np.arccos((1-ecc_earth**2)/ecc_earth/(1-ecc_earth*np.cos(E_list[-1]))-1/ecc_earth) #Get the true anomaly [rad]
+    if t_adj > T_pos/2: #Correct for angles larger than pi
+        theta_p = 2*np.pi-theta_p
+   
+    r_pos = r(a_earth,ecc_earth,theta_p) #Get the position in cartesian coordinates
+    return np.array([r_pos*np.cos(theta_p)*np.cos(i_earth),r_pos*np.sin(theta_p),r_pos*np.cos(theta_p)*np.sin(i_earth)]) 
 
-    theta_p = np.arccos((1-ecc_earth**2)/ecc_earth/(1-ecc_earth*np.cos(E_list[-1]))-1/ecc_earth)
-    r_pos = r(a_earth,ecc_earth,theta_p)
-    return np.array([r_pos*np.cos(theta_p)*np.cos(i_earth),r_pos*np.sin(theta_p),r_pos*np.cos(theta_p)*np.sin(i_earth)])
 
-x = np.linspace(0,T(mu_sun,a_earth),200)
-y = pos_earth_sun(x,70)
+x_e_s = np.linspace(0,T(mu_sun,a_earth),Or_p) #Generate points in time that account for one orbit
+y_e_s = []
+for i in x_e_s:
+    y_e_s.append(pos_earth_sun(i,N_max))
+y_e_s = np.transpose(np.array(y_e_s)) #Cartesian vector that represents the position of the Earth relative to the sun [km]
+    
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+ax.plot(y_e_s[0],y_e_s[1],y_e_s[2])
+plt.show()
+
+y_s_e = -1*y_e_s #Position of the sun relative to the Earth in a non-inclined and no-spinning axis of Earth 
+T_polar = np.array([[np.cos(i_polar),0,-np.sin(i_polar)],[0,1,0],[np.sin(i_polar),0,np.cos(i_polar)]]) #Transformation matrix to account for the tilt of the polar axis of Earth
+
+#for i in range(Or_p):
+#    y_s_e[i] = 
