@@ -20,7 +20,6 @@ d = np.sqrt(r_GEO ** 2 * 3)
 omega_GEO = np.sqrt(mu_earth / (r_GEO ** 3))
 
 
-
 def Hohmann():
     t = 0
     return t
