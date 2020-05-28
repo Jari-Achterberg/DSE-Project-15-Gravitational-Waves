@@ -42,7 +42,10 @@ def Phase_Shift(shift, t_transfer, r_GEO, T_GEO, mu_earth):
     dV = 2 * (np.sqrt(mu_earth * (2 / r_GEO - 1 / (r_GEO + da))) - np.sqrt(mu_earth / r_GEO))
     return dT, da, dV
 
+# circularisation
 
+
+# 80 km corrections
 r_dep, r_tar = 35706, 35786
 eighty_km = Hohmann(r_dep, r_tar, mu_earth, r_earth)
 print(eighty_km)
@@ -53,3 +56,9 @@ circularisation_orbit = Hohmann(r_dep=1, r_tar=2, mu_earth=398600, r_earth=6378)
 shift_120 = 2/3 * np.pi - (3 * omega_GEO * T_GTO - 2 * np.pi)
 t_transfer_120 = 7
 dT_120, da_120, dV_120 = Phase_Shift(shift_120, t_transfer_120, r_GEO, T_GEO, mu_earth)
+
+# realignment
+
+# orbit maintenance
+
+# end-of-life manoeuvres
