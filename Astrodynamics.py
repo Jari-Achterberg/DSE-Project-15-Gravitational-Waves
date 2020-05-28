@@ -49,9 +49,8 @@ dV_circularisation = (V_apo_GTO ** 2 + Vc_GEO ** 2 - 2 * V_apo_GTO * Vc_GEO * np
 
 # 80 km corrections
 r_dep, r_tar = 35706, 35786
-eighty_km = Hohmann(r_dep, r_tar, mu_earth, r_earth)
-print(eighty_km)
-circularisation_orbit = Hohmann(r_dep=1, r_tar=2, mu_earth=398600, r_earth=6378)
+dV_eighty_km = Hohmann(r_dep, r_tar, mu_earth, r_earth)
+
 
 
 # phase shift towards 120 degrees apart
@@ -60,6 +59,11 @@ t_transfer_120 = 7
 dT_120, da_120, dV_120 = Phase_Shift(shift_120, t_transfer_120, r_GEO, T_GEO, mu_earth)
 
 # realignment
+# only hohmann is considered, as it results in the highest delta v
+max_drift = np.sin(5 / 60 * np.pi / 180)*d
+r1_rea = apo_GTO - max_drift
+r2_rea = apo_GTO
+dV_realignment = Hohmann(r1_rea, r2_rea, mu_earth, r_earth)
 
 # orbit maintenance
 dV_orbit = 3 * 0.0075
@@ -68,6 +72,10 @@ dV_momentum = 3 * 0.006
 dV_maintenance = dV_orbit + dV_attitude + dV_momentum
 
 # end-of-life manoeuvres
+r1_EOL = apo_GTO            # == GEO
+r2_EOL = r1_EOL + 300       # assume EOL orbit is 300 km higher
+dV_EOL = Hohmann(r1_EOL, r2_EOL, mu_earth, r_earth)
 
 # total
-dV_tot =
+total_delta_v = dV_EOL + dV_eighty_km + dV_realignment + dV_maintenance + dV_120 + dV_circularisation
+print(total_delta_v)
