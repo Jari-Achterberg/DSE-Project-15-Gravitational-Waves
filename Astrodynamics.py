@@ -52,7 +52,6 @@ r_dep, r_tar = 35706, 35786
 dV_eighty_km = Hohmann(r_dep, r_tar, mu_earth, r_earth)
 
 
-
 # phase shift towards 120 degrees apart
 shift_120 = 2/3 * np.pi - (3 * omega_GEO * T_GTO - 2 * np.pi)
 t_transfer_120 = 7
@@ -63,7 +62,9 @@ dT_120, da_120, dV_120 = Phase_Shift(shift_120, t_transfer_120, r_GEO, T_GEO, mu
 max_drift = np.sin(5 / 60 * np.pi / 180)*d
 r1_rea = apo_GTO - max_drift
 r2_rea = apo_GTO
-dV_realignment = Hohmann(r1_rea, r2_rea, mu_earth, r_earth)
+dV_rea = Hohmann(r1_rea, r2_rea, mu_earth, r_earth)
+number_of_realignments = 73  # based on three years
+dV_realignment = dV_rea*number_of_realignments
 
 # orbit maintenance
 dV_orbit = 3 * 0.0075
@@ -77,5 +78,5 @@ r2_EOL = r1_EOL + 300       # assume EOL orbit is 300 km higher
 dV_EOL = Hohmann(r1_EOL, r2_EOL, mu_earth, r_earth)
 
 # total
-total_delta_v = dV_EOL + dV_eighty_km + 73 * dV_realignment + dV_maintenance + dV_120 + dV_circularisation
+total_delta_v = dV_EOL + dV_eighty_km + dV_realignment + dV_maintenance + dV_120 + dV_circularisation
 print(total_delta_v)
