@@ -32,15 +32,15 @@ def Hohmann():
 
 def Phase_Shift(shift, t_transfer, r_GEO, T_GEO, mu_earth):
     dT = t_transfer * T_GEO
-    dpos = shift / (2 * np.pi * r_GEO) * 2 * np.pi
-    da = dpos * r_GEO / (3 * np.pi) * T_GEO / dT
+    #dpos = shift / (2 * np.pi * r_GEO) * 2 * np.pi
+    da = shift * r_GEO / (3 * np.pi) * T_GEO / dT
     dV = 2 * (np.sqrt(mu_earth * (2 / r_GEO - 1 / (r_GEO + da))) - np.sqrt(mu_earth / r_GEO))
-    return dV
+    return dT, da, dV
 
 
 circularisation_orbit = Hohmann()
 
 # phase shift towards 120 degrees apart
-shift_120 = 2/3 * np.pi - (3 * )
+shift_120 = 2/3 * np.pi - (3 * omega_GEO * T_GTO - 2 * np.pi)
 t_transfer_120 = 7
-dV_realignment
+dT_120, da_120, dV_120 = Phase_Shift(shift_120, t_transfer_120, r_GEO, T_GEO, mu_earth)
