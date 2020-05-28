@@ -21,7 +21,8 @@ apo_GTO = 35786     # altitude                          # km
 a_GTO = (peri_GTO + apo_GTO) / 2 + r_earth              # km
 T_GTO = 2 * np.pi * np.sqrt(a_GTO ** 3 / mu_earth)      # s
 d = np.sqrt(r_GEO ** 2 * 3)                             # km
-
+V_apo_GTO = 1.64                                        # km/s
+i_GTO = 6.02                                            # degrees
 
 def Hohmann(r_dep, r_tar, mu_earth, r_earth):
     # This function calculates the total delta-v needed for a Hohmann transfer,
@@ -43,7 +44,8 @@ def Phase_Shift(shift, t_transfer, r_GEO, T_GEO, mu_earth):
     return dT, da, dV
 
 # circularisation
-
+Vc_GEO = np.sqrt(mu_earth/(r_GEO + r_earth))
+dV_circularisation = (V_apo_GTO ** 2 + Vc_GEO ** 2 - 2 * V_apo_GTO * Vc_GEO * np.cos(i_GTO * np.pi/180))
 
 # 80 km corrections
 r_dep, r_tar = 35706, 35786
@@ -60,5 +62,12 @@ dT_120, da_120, dV_120 = Phase_Shift(shift_120, t_transfer_120, r_GEO, T_GEO, mu
 # realignment
 
 # orbit maintenance
+dV_orbit = 3 * 0.0075
+dV_attitude = 3 * 0.006
+dV_momentum = 3 * 0.006
+dV_maintenance = dV_orbit + dV_attitude + dV_momentum
 
 # end-of-life manoeuvres
+
+# total
+dV_tot =
