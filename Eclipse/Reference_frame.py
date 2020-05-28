@@ -7,9 +7,10 @@ a_earth = 149.6*10**6 # Semi-major axis of Earth [km]
 mu_sun = 1.3271244*10**11 # Gravitational parameter of the sun [km^3s^-2]
 i_earth = 7.155/180*np.pi # Earth inclination w.r.t the sun[rad]
 i_polar = 23.43664/180*np.pi # Earth polar axis inclination
+day = 86164.09053083288 # Sideral day duration
 
 #%%
-Or_p = 200 #Number of points to modelate the orbit
+Or_p = 20000 #Number of points to modelate the orbit
 N_max = 70 #Number of iterations for convergence of the recursive bisection
 
 #%%
@@ -91,13 +92,36 @@ for i in x_e_s:
     y_e_s.append(pos_earth_sun(i,N_max))
 y_e_s = np.transpose(np.array(y_e_s)) #Cartesian vector that represents the position of the Earth relative to the sun [km]
     
-fig = plt.figure()
-ax = fig.gca(projection='3d')
-ax.plot(y_e_s[0],y_e_s[1],y_e_s[2])
-plt.show()
-
 y_s_e = -1*y_e_s #Position of the sun relative to the Earth in a non-inclined and no-spinning axis of Earth 
 T_polar = np.array([[np.cos(i_polar),0,-np.sin(i_polar)],[0,1,0],[np.sin(i_polar),0,np.cos(i_polar)]]) #Transformation matrix to account for the tilt of the polar axis of Earth
 
-#for i in range(Or_p):
-#    y_s_e[i] = 
+y_s_eT = np.transpose(y_s_e) #Transpose of the matrix with the positions of the sun relative to Earth
+y_s_erT = [] #Calculation of the rotated reference frame, accounting for the polar inclination
+for i in range(Or_p): 
+    y_s_erT.append(np.matmul(T_polar,y_s_eT[i]))
+y_s_erT = np.array(y_s_erT)
+y_s_er = y_s_erT.T
+
+
+Omega_t = 2*np.pi/day #Rotational rate of the Earth
+
+
+y_s_errT = [] #Calculation of the rotated reference frame, accounting for the polar inclination and Earth's rotation
+for i in range(Or_p):
+    T_rot = np.array([[np.cos(Omega_t*x_e_s[i]),np.sin(Omega_t*x_e_s[i]),0],[-np.sin(Omega_t*x_e_s[i]),np.cos(Omega_t*x_e_s[i]),0],[0,0,1]]) #Transformation matrix to account for the rotation (days) of Earth
+    y_s_errT.append(np.matmul(T_rot,y_s_erT[i]))
+y_s_errT = np.array(y_s_errT)
+y_s_err = y_s_errT.T
+
+
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+#ax.plot(y_s_e[0],y_s_e[1],y_s_e[2], label='Sun to Earth')
+#ax.plot(y_s_er[0],y_s_er[1],y_s_er[2], label='Sun to Earth inclined')
+ax.plot(y_s_err[0],y_s_err[1],y_s_err[2], label='Sun to Earth inclined and days')
+ax.legend()
+ax.set_xlabel('X Label')
+ax.set_ylabel('Y Label')
+ax.set_zlabel('Z Label')
+plt.show()
+

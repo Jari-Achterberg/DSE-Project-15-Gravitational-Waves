@@ -79,4 +79,4 @@ dV_EOL = Hohmann(r1_EOL, r2_EOL, mu_earth, r_earth)
 
 # total
 total_delta_v = dV_EOL + dV_eighty_km + dV_realignment + dV_maintenance + dV_120 + dV_circularisation
-print(total_delta_v)
+# print(total_delta_v)
