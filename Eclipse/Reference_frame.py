@@ -6,7 +6,7 @@ ecc_earth = 0.01670861 #Earth eccentricity
 a_earth = 149.6*10**6 # Semi-major axis of Earth [km]
 mu_sun = 1.3271244*10**11 # Gravitational parameter of the sun [km^3s^-2]
 i_earth = 7.155/180*np.pi # Earth inclination w.r.t the sun[rad]
-i_polar = 23.43664/180*np.pi # Earth polar axis inclination
+i_polar = 23.43664/180*np.pi # Earth polar axis inclination relative to orbital plane
 day = 86164.09053083288 # Sideral day duration
 
 #%%
@@ -66,7 +66,8 @@ def pos_earth_sun(t,N_max): #Position of the Earth relative to the Sun after t s
         b = -2*np.pi  # Lower limit
         for i in range(N_max):
             c = (a + b) / 2
-            if M_norm(a, ecc_earth, M) * M_norm(c, ecc_earth, M) < 0:
+            if M_norm(a, ecc_earth, M) * M_norm(c, ecc_earth, M) <= 0: 
+                #If I just put '<', there is an error at M=np.pi. This is something that should be looked into if there's time
                 b = c
             else:
                 a = c
@@ -86,7 +87,7 @@ def pos_earth_sun(t,N_max): #Position of the Earth relative to the Sun after t s
     return np.array([r_pos*np.cos(theta_p)*np.cos(i_earth),r_pos*np.sin(theta_p),r_pos*np.cos(theta_p)*np.sin(i_earth)]) 
 
 
-x_e_s = np.linspace(0,T(mu_sun,a_earth),Or_p) #Generate points in time that account for one orbit
+x_e_s = np.linspace(0,T(mu_sun,a_earth)/365,Or_p) #Generate points in time that account for one orbit
 y_e_s = []
 for i in x_e_s:
     y_e_s.append(pos_earth_sun(i,N_max))
@@ -125,3 +126,29 @@ ax.set_ylabel('Y Label')
 ax.set_zlabel('Z Label')
 plt.show()
 
+#%%
+
+
+def rec_bis(N_max):
+    '''
+    :param a_0: Upper limit (has to be greater than zero)
+    :param b_0: Lower limit (has to be smaller than zero)
+    :param N_max: Number of iterations
+    :return: Returns the value of the function using recursive bisection. In this case, E
+    '''
+    y = []
+    a = 2*np.pi  # Upper limit
+    b = -2*np.pi  # Lower limit
+    for i in range(N_max):
+        c = (a + b) / 2
+        if M_norm(a, ecc_earth, np.pi-0.001) * M_norm(c, ecc_earth, np.pi-0.001) <= 0:
+            b = c
+        else:
+            a = c
+        y.append(c)
+    y = np.array(y)
+    return y
+
+a = rec_bis(70)
+print(a)
+plt.plot(rec_bis(70))
