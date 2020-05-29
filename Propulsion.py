@@ -3,6 +3,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from Astrodynamics import mu_earth, dV_EOL, dV_eighty_km, dV_circularisation, dV_maintenance, dV_120, dV_realignment, total_delta_v
+import scipy as sp
 
 # input parameters
 m_i = 20    # kg
@@ -21,6 +22,25 @@ def rocket_equation(delta_v, isp, m_i):
     w = g0*isp
     Mp = (1 - np.exp(-delta_v/w))*m_i
     return Mp
+
+def Time_Transfer():
+    k = F_min/F_in
+    F = T/m
+    K = lambda y: sp.integrate.quad(lambda t: 1/(np.sqrt(1-y**2*t**2)*np.sqrt(1-t**2)), 0, 1)
+    E = lambda y: sp.integrate.quad(lambda t: np.sqrt(1-y**2*t**2)/np.sqrt(1-t**2), 0, 1)
+    ksi = 4/3 * np.sqrt(2/(1-k)) * ((1+k)*K(np.sqrt((1-k)/2))-2*k*E(np.sqrt((1-k)/2))
+    u1 = np.pi*(1+k)/(2*ksi)
+    u2 = np.pi*(7+5*k)/(12*ksi)
+    a = lambda x: af * np.exp(2/(1+9*u2**2)*((3*u2-2*u1)*np.asin(x)-(1+6*u1*u2)*np.log(3*u2*x+np.sqrt(1-x**2))))
+    H = sp.integrate.quad(lambda x: 1 / (np.sqrt(a(x)) * ((1-x**2)+3*u2*x*np.sqrt(1-x**2))), 0, e0)
+    fc = 1/(6*u2*(1+9*u2))*((18*u2**2+4)*np.log(np.abs(np.sqrt(1-e0**2)+3*u2*e0))-2*(1+9*u2**2)*np.log(1-e0**2)-6*u2*np.asin(e0))
+    fs = 1/(np.sqrt(1+9*u2**2))*(2*np.log(np.abs(np.sqrt(1+9*u2**2)+3*u2))-np.log(np.abs(((np.sqrt(1+9*u2**2)+3*u2)*(1+np.sqrt(1-e0**2))-3*u2*e0)/((np.sqrt(1+9*u2**2)+3*u2)*(1+np.sqrt(1-e0**2))+3*u2*e0))))                                                                                                                                           ))))
+    #F_in = F * (1 + (i0**2*ksi**2)/(16*(fc*np.cos(omega)**2+fs*np.sin(omega)**2)**2)) ** (-1/2)
+    #t = 2 * np.pi * np.sqrt(mu_earth) * H / (F_in * ksi)
+
+    dv = 2*np.pi*H/ksi*np.sqrt(mu_earth+(mu_earth*i0**2*ksi**2)/(16*(fc*np.cos(omega)**2+fs*np.sin(omega)**2)**2))
+    t = dv/F
+    return t
 
 
 # Chemical propulsion (impulsive manoeuvres)
