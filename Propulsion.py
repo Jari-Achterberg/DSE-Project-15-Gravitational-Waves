@@ -1,6 +1,7 @@
 # Determine what type of propulsion system is suitable for which manoeuvre
 
 import numpy as np
+from matplotlib import pyplot as plt
 from Astrodynamics import mu_earth, dV_EOL, dV_eighty_km, dV_circularisation, dV_maintenance, dV_120, dV_realignment, total_delta_v
 
 # input parameters
@@ -28,8 +29,8 @@ def rocket_equation(delta_v, isp, m_i):
 delta_v = dV_circularisation * 1000
 delta_v_2 = total_delta_v * 1000
 # all options considered from left to right: (6 options)
-# Hydros-C, Lunar Flashlight MiPS, Argomoon Hibrid MiPS, Green Hybdrid, GR-1, 1 N GPHP, EPSS 1CKK
-isps = [310, 190, 190, 215, 231, 204, 252, 800]
+# Hydros-C, Lunar Flashlight MiPS, Argomoon Hibrid MiPS, Green Hybdrid, GR-1, 1 N GPHP, EPSS 1CKK # chemical
+isps = [310, 190, 190, 215, 231, 204, 252, 3000]
 Mp_list, Mp_list_2 = [], []
 for isp in isps:
     Mp = rocket_equation(delta_v, isp, m_i)
@@ -40,7 +41,7 @@ for isp in isps:
 print(Mp_list)
 print(Mp_list_2)
 # All manoeuvres
-
+T = [1.2, 0.4, 0.1, 8, 0.26, 0.25, 1, 50/(10**6)]
 # Electric propulsion (non-impulsive manoeuvres)
 # - 80km corrections?
 # - phase shift towards constellation?
@@ -49,15 +50,16 @@ print(Mp_list_2)
 # - End Of Life manoeuvre?
 
 m = m_i
-isps = isps
-T = [1.2, 0.4, 0.1, 8, 0.26, 0.25, 1, 0.7/1000]
+# PPTCUP, mu-CAT, PUC, Resistojet System, electrospray, MPACS,
+isps_2 = [655, 3000, 70, 99, 800, 827]
+T_2 = [40/(10**6), 50/(10**6), 0.45, 100/1000, 0.7/1000, 80/(10**6)]
 r = 42164
 r0 = 250 + 6378
 
 t_list = []
 
-for i in range(len(isps)):
-    t = Transfer_Time(m, isps[i], T[i] / 1000, r, r0)
+for i in range(len(isps_2)):
+    t = Transfer_Time(m, isps_2[i], T_2[i] / 1000, r, r0)
     t /= 60
     t /= 60
     t /= 24
@@ -66,3 +68,18 @@ for i in range(len(isps)):
 
 print("transfer times: ", t_list)
 
+Isp = 100
+T_test = 0
+t_test_list = []
+T_test_list = []
+for i in range(100):
+    T_test += 1/10000
+    t_test = Transfer_Time(m, Isp, T_test / 1000, r, r0)
+    t_test /= 3600
+    t_test /= 24
+    T_test_list.append(T_test)
+    t_test_list.append(t_test)
+
+print(T_test_list[-1], t_test_list[-1])
+plt.plot(T_test_list, t_test_list)
+plt.show()
