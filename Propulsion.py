@@ -25,22 +25,41 @@ def rocket_equation(delta_v, isp, m_i):
 
 
 def Time_Transfer():
+    # latest changes:
+    # - changed e0
+    # - changed thrust
+    # - changed k based on e0 difference
+    # - changed np.log to np.log10 because log is used in function instead of ln
+    # - changed k accordingly
+
     # assume e0 for now
-    e0 = 0.9897524756
+    # e0 = 0.9897524756
+    e0 = 0.73
     omega = 178 / 180*np.pi
     af = 42164.136  # km
     i0 = 6.02 / 180*np.pi
-    TT = 0.3/1000
+    omega = 0
+    i0 = 45/180*np.pi
+    # i0 = 90 /180*np.pi
+    # TT = 0.3/1000
+    TT = 100/1000/1000
+    TT = 1*10**(-5)
     m = 20
+    m = 50
     a0 = 24396  # km
 
-    v = 1.64
-    r = af
-    F_in = m*v**2/r
-    F_min = 0.00029774
-    k = F_min/F_in
-    print(F_min)
-    print(F_in)
+    # v = 1.64
+    # r = af
+    # F_in = m*v**2/r
+    # F_min = 0.00029774
+    # F_min = 0.35*10**(-5)
+    # F_in = TT/m
+    # k = F_min/F_in
+    # k = 0.235
+    # k = 0.233379496         # for e0 = 0.989
+    # k = 0.02438             # for e0 = 0.73
+    k = 0.69682                # for e0 = 0.73 AND np.log change
+    print("k: ", k)
     F = TT/m
 
     getal = np.sqrt((1 - k) / 2)
@@ -53,22 +72,24 @@ def Time_Transfer():
     u1 = np.pi*(1+k)/(2*ksi)
     u2 = np.pi*(7+5*k)/(12*ksi)
 
-    a = lambda x: af * np.exp(2/(1+9*u2**2)*((3*u2-2*u1)*np.arcsin(x)-(1+6*u1*u2)*np.log(3*u2*x+np.sqrt(1-x**2))))  # a0/af
+    a = lambda x: af * np.exp(2/(1+9*u2**2)*((3*u2-2*u1)*np.arcsin(x)-(1+6*u1*u2)*np.log10(3*u2*x+np.sqrt(1-x**2))))  # a0/af
     print("a0: ", a(e0))
     H = integrate.quad(lambda x: 1 / (np.sqrt(a(x)) * ((1-x**2)+3*u2*x*np.sqrt(1-x**2))), 0, e0)                     # H
     fc = 1/(6*u2*(1+9*u2))*((18*u2**2+4)*np.log(np.abs(np.sqrt(1-e0**2)+3*u2*e0))-2*(1+9*u2**2)*np.log(1-e0**2)-6*u2*np.arcsin(e0))
     fs = 1/(np.sqrt(1+9*u2**2))*(2*np.log(np.abs(np.sqrt(1+9*u2**2)+3*u2))-np.log(np.abs(((np.sqrt(1+9*u2**2)+3*u2)*(1+np.sqrt(1-e0**2))-3*u2*e0)/((np.sqrt(1+9*u2**2)+3*u2)*(1+np.sqrt(1-e0**2))+3*u2*e0))))
 
-    F_in = F * (1 + (i0**2*ksi**2)/(16*(fc*np.cos(omega)**2+fs*np.sin(omega)**2)**2)) ** (-1/2)
-    t = 2 * np.pi * np.sqrt(mu_earth) * H[0] / (F_in * ksi)
-    print(H)
-    # dv = 2*np.pi*H[0]/ksi*np.sqrt(mu_earth+(mu_earth*i0**2*ksi**2)/(16*(fc*np.cos(omega)**2+fs*np.sin(omega)**2)**2))
-    # t = dv/F
+    # F_in = F * (1 + (i0**2*ksi**2)/(16*(fc*np.cos(omega)**2+fs*np.sin(omega)**2)**2)) ** (-1/2)
+    # t = 2 * np.pi * np.sqrt(mu_earth) * H[0] / (F_in * ksi)
+
+    dv = 2*np.pi*H[0]/ksi*np.sqrt(mu_earth+(mu_earth*i0**2*ksi**2)/(16*(fc*np.cos(omega)**2+fs*np.sin(omega)**2)**2))
+    print("dv: ", dv)
+    t = dv/F
     return t
 
 
 tt = Time_Transfer()
 print(tt)
+print("days: ", tt/3600/24)
 '''
 # Chemical propulsion (impulsive manoeuvres)
 # Only circularisation
@@ -101,7 +122,7 @@ m = m_i
 isps_2 = [655, 3000, 70, 99, 800, 827]
 T_2 = [40/(10**6), 50/(10**6), 0.45, 100/1000, 0.7/1000, 80/(10**6)]
 r = 42164
-r0 = 250 + 6378
+r0 = 1500 + 6378
 
 t_list = []
 
