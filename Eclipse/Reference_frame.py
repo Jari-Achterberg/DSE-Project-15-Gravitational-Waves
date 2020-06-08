@@ -97,6 +97,7 @@ def pos_sun_earth(t,N_max): #Position of the Earth relative to the Sun after t s
     for i in range(len(t_adj)):
         T_rot.append(np.array([[np.cos(Omega_t*t[i]),np.sin(Omega_t*t[i]),0],[-np.sin(Omega_t*t[i]),np.cos(Omega_t*t[i]),0],[0,0,1]])) #Transformation matrix to account for the rotation (days) of Earth
     T_rot = np.array(T_rot)
+    
     v = []
     for i in range(len(t_adj)):
         c = np.matmul(T_rot[i],v_fin.T[i])
@@ -119,7 +120,22 @@ def time(date):
 
 
 def pos_sun_earth_time(begin,end,res,N_max): #Generate points in time that account for one orbit
-    
+    '''
+    Parameters
+    ----------
+    begin : TYPE 2000-01-01T00:00:01
+        DESCRIPTION. Begin date for the orbital calculations. 
+    end : TYPE 2001-01-01T00:00:01
+        DESCRIPTION. End date for the orbital calculations. In this case it would be a year orbit
+    res : TYPE Int
+        DESCRIPTION. Represents the size of the output vector 
+    N_max : TYPE Int
+        DESCRIPTION. Represents the number of iterations for the recursive bisection     
+    Returns
+    -------
+    TYPE array
+        DESCRIPTION. Returns a vector for the x, y and z points of the sun with respect to the Earth for every moment in time specified.    
+    '''
     b = time(begin)
     e = time(end)
     x_s = np.linspace(b,e,res)
@@ -128,13 +144,43 @@ def pos_sun_earth_time(begin,end,res,N_max): #Generate points in time that accou
 
 
 #%%
-y_s = pos_sun_earth_time('2011-12-01T12:00:00','2012-12-10T18:53:45',Or_p,N)
+
+def pos_sun_sat(begin,end,res,N_max):
+    '''
+    Parameters
+    ----------
+    begin : TYPE 2000-01-01T00:00:01
+        DESCRIPTION. Begin date for the orbital calculations. 
+    end : TYPE 2001-01-01T00:00:01
+        DESCRIPTION. End date for the orbital calculations. In this case it would be a year orbit
+    res : TYPE Int
+        DESCRIPTION. Represents the size of the output vector 
+    N_max : TYPE Int
+        DESCRIPTION. Represents the number of iterations for the recursive bisection     
+    Returns
+    -------
+    TYPE array
+        DESCRIPTION. Returns a 5*res array for the x, y and z points of the Sun with respect to the Satellite, the 
+        vertical angle of the satellite wrt the sun and the angle of the Sun in the x-z plane for every moment in 
+        time specified.    
+    '''
+    vec = np.matmul(np.array([[0,1,0],[0,0,1],[1,0,0]]),pos_sun_earth_time(begin,end,res,N_max))
+    angle_sun = np.array([np.arctan(vec[1]/np.sqrt(vec[0]**2+vec[2]**2)),np.arctan2(vec[0],vec[2])])
+    return np.array([vec[0],vec[1],vec[2],angle_sun[0],angle_sun[1]])
+    
+#%%
+'''
+y_sat = pos_sun_sat('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N)
+y_earth = pos_sun_earth_time('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N)
+y_s = np.matmul(np.array([[0,1,0],[0,0,1],[1,0,0]]),y_earth)
+angle_sun_sat = np.array([np.arctan(y_s[1]/np.sqrt(y_s[0]**2+y_s[2]**2)),np.arctan2(y_s[0],y_s[2])])
 
 fig = plt.figure()
 ax = fig.gca(projection='3d')
-ax.plot(y_s[0],y_s[1],y_s[2], label='Sun to Earth inclined and days')
+ax.plot(y_earth[0],y_earth[1],y_earth[2], label='Sun to Earth inclined and days')
 ax.legend()
 ax.set_xlabel('X Label')
 ax.set_ylabel('Y Label')
 ax.set_zlabel('Z Label')
 plt.show()
+'''
