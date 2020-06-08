@@ -5,12 +5,12 @@ from mpl_toolkits.mplot3d import Axes3D
 ecc_earth = 0.01670861 #Earth eccentricity
 a_earth = 149.6*10**6 # Semi-major axis of Earth [km]
 mu_sun = 1.3271244*10**11 # Gravitational parameter of the sun [km^3s^-2]
-i_earth = 7.155/180*np.pi # Earth inclination w.r.t the sun[rad]
-i_polar = 23.43664/180*np.pi # Earth polar axis inclination relative to orbital plane
+i_earth = 0 /180*np.pi # Earth inclination w.r.t the sun[rad]
+i_polar = (23.43664-i_earth)/180*np.pi # Earth polar axis inclination relative to orbital plane
 day = 86164.09053083288 # Sideral day duration
 
 #%%
-Or_p = 1000 #Number of points to modelate the orbit
+Or_p = 10000 #Number of points to modelate the orbit
 N = 35 #Number of iterations for convergence of the recursive bisection
 
 #%%
@@ -128,7 +128,7 @@ def pos_sun_earth_time(begin,end,res,N_max): #Generate points in time that accou
 
 
 #%%
-y_s = pos_sun_earth_time('2011-12-01T12:00:00','2012-02-10T18:53:45',Or_p,N)
+y_s = pos_sun_earth_time('2011-12-01T12:00:00','2012-12-10T18:53:45',Or_p,N)
 
 fig = plt.figure()
 ax = fig.gca(projection='3d')
