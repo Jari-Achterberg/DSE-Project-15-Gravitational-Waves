@@ -139,11 +139,13 @@ def pos_sun_earth_time(begin,end,res,N_max): #Generate points in time that accou
     b = time(begin)
     e = time(end)
     x_s = np.linspace(b,e,res)
+    f = pos_sun_earth(x_s,N_max)
     
-    return pos_sun_earth(x_s,N_max)
+    return np.array([f[0],f[1],f[2],x_s])
 
 
 #%%
+
 
 def pos_sun_sat(begin,end,res,N_max):
     '''
@@ -164,13 +166,16 @@ def pos_sun_sat(begin,end,res,N_max):
         vertical angle of the satellite wrt the sun and the angle of the Sun in the x-z plane for every moment in 
         time specified.    
     '''
-    vec = np.matmul(np.array([[0,1,0],[0,0,1],[1,0,0]]),pos_sun_earth_time(begin,end,res,N_max))
+    f = pos_sun_earth_time(begin,end,res,N_max)
+    vec = np.matmul(np.array([[0,1,0],[0,0,1],[1,0,0]]),f[0:3,:])
     angle_sun = np.array([np.arctan(vec[1]/np.sqrt(vec[0]**2+vec[2]**2)),np.arctan2(vec[0],vec[2])])
-    return np.array([vec[0],vec[1],vec[2],angle_sun[0],angle_sun[1]])
+    return np.array([vec[0],vec[1],vec[2],angle_sun[0],angle_sun[1],f[3]])
     
 #%%
-'''
+
 y_sat = pos_sun_sat('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N)
+
+'''
 y_earth = pos_sun_earth_time('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N)
 y_s = np.matmul(np.array([[0,1,0],[0,0,1],[1,0,0]]),y_earth)
 angle_sun_sat = np.array([np.arctan(y_s[1]/np.sqrt(y_s[0]**2+y_s[2]**2)),np.arctan2(y_s[0],y_s[2])])
