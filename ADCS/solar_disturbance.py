@@ -61,6 +61,32 @@ for i in range(len(betas)):
     Torque_sun.append(T)
 
 
-plt.plot(alphas[:len(betas)],Torque_sun)
 
 
+#figure
+
+fig = plt.figure(figsize = (7,5))
+fig.suptitle('Title of the Graph', fontsize=18, fontweight='bold')
+
+axs = fig.add_subplot(1,1,1)
+axs.plot(alphas[:len(betas)], Torque_sun , color = '#00A6D6', label = 'label')
+
+
+axs.set_ylabel('ylabel', fontsize=14)
+axs.set_xlabel('Time [s]', fontsize = 14)
+axs.tick_params(axis='both', which='major', labelsize=10)
+axs.grid(b = None, which = 'both', axis = 'both')
+
+
+#In case legend is needed
+'''
+legend = fig.legend(loc= 0 , framealpha=1, frameon=True, fontsize=16)
+
+fig.align_labels()
+
+plt.xlabel('Time [s]', fontsize=16)
+frame = legend.get_frame()
+
+frame.set_facecolor('0.90')
+frame.set_edgecolor('black')
+'''
