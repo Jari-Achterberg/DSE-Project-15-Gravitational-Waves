@@ -10,10 +10,6 @@ i_polar = (23.43664-i_earth)/180*np.pi # Earth polar axis inclination relative t
 day = 86164.09053083288 # Sideral day duration
 
 #%%
-Or_p = 10000 #Number of points to modelate the orbit
-N = 35 #Number of iterations for convergence of the recursive bisection
-
-#%%
 
 def T(mu,a): #orbital period
     '''
@@ -44,6 +40,10 @@ def M_norm(E,e,M):
     :return: A theoretical value of zero for the equation that solves for recursive bisection
     '''
     return E-e*np.sin(E)-M
+
+#%%
+Or_p = int(np.around(T(mu_sun,a_earth)/60))#Number of points to modelate the orbit
+N = 35 #Number of iterations for convergence of the recursive bisection
 
 #%%
 def pos_sun_earth(t,N_max): #Position of the Earth relative to the Sun after t seconds without taking only Earth orbit plane inclination into account
@@ -172,10 +172,17 @@ def pos_sun_sat(begin,end,res,N_max):
     return np.array([vec[0],vec[1],vec[2],angle_sun[0],angle_sun[1],f[3]])
     
 #%%
-
-y_sat = pos_sun_sat('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N)
-
 '''
+#y_sat = pos_sun_sat('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N) #Function for Sun position relative to satellite
+y_earth = pos_sun_earth_time('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N) #Function for Sun position relative to Earth
+
+y_earthT = y_earth.T
+f = open("output.dat","w")
+for i in range(len(y_earthT)):
+    line = str(y_earthT[i,0])+","+str(y_earthT[i,1])+","+str(y_earthT[i,2])+","+str(y_earthT[i,3])+"\n"
+    f.write(line)
+f.close()
+
 y_earth = pos_sun_earth_time('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N)
 y_s = np.matmul(np.array([[0,1,0],[0,0,1],[1,0,0]]),y_earth)
 angle_sun_sat = np.array([np.arctan(y_s[1]/np.sqrt(y_s[0]**2+y_s[2]**2)),np.arctan2(y_s[0],y_s[2])])
