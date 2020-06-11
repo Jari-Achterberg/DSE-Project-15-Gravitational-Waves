@@ -53,7 +53,7 @@ dV_eighty_km = Hohmann(r_dep, r_tar, mu_earth, r_earth)
 
 
 # phase shift towards 120 degrees apart
-shift_120 = 2/3 * np.pi - (3 * omega_GEO * T_GTO - 2 * np.pi)
+shift_120 = 2/3 * np.pi #- (3 * omega_GEO * T_GTO - 2 * np.pi)
 t_transfer_120 = 7
 dT_120, da_120, dV_120 = Phase_Shift(shift_120, t_transfer_120, r_GEO, T_GEO, mu_earth)
 
@@ -63,13 +63,13 @@ max_drift = np.sin(5 / 60 * np.pi / 180)*d
 r1_rea = apo_GTO - max_drift
 r2_rea = apo_GTO
 dV_rea = Hohmann(r1_rea, r2_rea, mu_earth, r_earth)
-number_of_realignments = 73  # based on three years
+number_of_realignments = 49  # based on two years
 dV_realignment = dV_rea*number_of_realignments
 
 # orbit maintenance
-dV_orbit = 3 * 0.0075
-dV_attitude = 3 * 0.006
-dV_momentum = 3 * 0.006
+dV_orbit = 2 * 0.0075
+dV_attitude = 2 * 0.006
+dV_momentum = 2 * 0.006
 dV_maintenance = dV_orbit + dV_attitude + dV_momentum
 
 # end-of-life manoeuvres

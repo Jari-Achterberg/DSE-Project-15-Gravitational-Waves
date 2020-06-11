@@ -52,9 +52,9 @@ def SolarArea(height,width,length,alpha,beta): #Computes which faces of the sate
     o_length = length #side on "top" parallel to orbit
     o_width = width
     o_area = o_width * o_length * np.sin(beta)
-    o_cp =o_length/2,  -o_width/2
+    o_cp = o_length/2,  -o_width/2
 
-    total_area = v_area + z_area + o_area
+    total_area = v_area + z_area #+ o_area
     cp = (v_cp[0]*v_area + z_cp[0]*z_area + o_cp[0]*o_area)/total_area, (v_cp[1]*v_area + z_cp[1]*z_area + o_cp[1]*o_area)/total_area
     cp = np.array(cp)
     return total_area, cp
