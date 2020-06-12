@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from Eclipse.Reference_frame import pos_sun_sat
 import time
 
-#Constants
+# Constants
 J = 1367 # W/m^2
 c = 3e8 # m/s
 q = 0.88
@@ -14,7 +14,7 @@ length = 0.20 #z-axis [m]
 cg = 0.1,0.15,0.1 #assumed
 
 
-#for one day
+# for one day
 '''
 Or_p = 86400
 alphas = np.linspace(0, 2 * np.pi, num = 86400)#sun around z-axis
@@ -38,21 +38,25 @@ def transformation(a): #to project center of gravity in 2D
     C = np.dot(A,B)
     return C
 
+
 def SolarArea(height,width,length,alpha,beta): #Computes which faces of the satellite are facing the sun and how mu radiation they get
     v_width = abs(width * np.cos(alpha)) #side facing earth
     v_height = abs(height * np.cos(beta))
-    v_area = v_width * v_height
+    if alpha > np.pi/2 and alpha < 3/2*np.pi:
+        v_area = 0
+    else:
+        v_area = v_width * v_height
     v_cp = v_height/2, v_width/2
 
-    z_length = abs(length * np.sin(alpha)) #side 90deg from earth perpendicular to orbit
+    z_length = abs(length * np.sin(alpha))  # side 90deg from earth perpendicular to orbit
     z_height = abs(height * np.cos(beta))
     z_area = z_length * z_height
     z_cp = -z_length/2 , -z_height/2
 
-    o_length = length #side on "top" parallel to orbit
+    o_length = length   # side on "top" parallel to orbit
     o_width = width
-    o_area = o_width * o_length * np.sin(beta)
-    o_cp =o_length/2,  -o_width/2
+    o_area = 0      # o_width * o_length * np.sin(beta)
+    o_cp = 0, 0     # o_length/2,  -o_width/2
 
     total_area = v_area + z_area + o_area
     cp = (v_cp[0]*v_area + z_cp[0]*z_area + o_cp[0]*o_area)/total_area, (v_cp[1]*v_area + z_cp[1]*z_area + o_cp[1]*o_area)/total_area
@@ -61,11 +65,12 @@ def SolarArea(height,width,length,alpha,beta): #Computes which faces of the sate
 
 # Code
 
-eclipse = np.load('/Users/Federico/Documents/GitHub/DSE-Project-15-Gravitational-Waves/ADCS/eclipse_check.npy')
+eclipse = np.load('/Users/jaria/PycharmProjects/DSE-Project-15-Gravitational-Waves/ADCS/eclipse_check.npy')
 
 Torque_sun = []
 Area_exposed = []
 cg_2d = transformation(cg)
+mz = 0
 for i in range(len(alphas)):
     if eclipse[i] == 0:
         A, cp = SolarArea(height,width,length,alphas[i],betas[i])
@@ -75,6 +80,7 @@ for i in range(len(alphas)):
         Torque_sun.append(T)
         Area_exposed.append(A)
     else:
+        mz += 1
         A = 0
         T = 0
         Torque_sun.append(T)
@@ -95,13 +101,13 @@ fig.suptitle('Area', fontsize=18, fontweight='bold')
 axs = fig.add_subplot(1,1,1)
 axs.plot(t, Area_exposed, color = '#00A6D6', label = 'label')
 
-
+print(sum(Area_exposed)/(len(Area_exposed)-mz))
 
 axs.set_ylabel('Area [m^2]', fontsize=14)
 axs.set_xlabel('Time [Days]', fontsize = 14)
 axs.tick_params(axis='both', which='major', labelsize=10)
 axs.grid(b = None, which = 'both', axis = 'both')
-
+plt.show()
 
 #In case legend is needed
 '''
