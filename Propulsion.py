@@ -84,7 +84,7 @@ def Time_Transfer():
     K = integrate.quad(lambda t1: 1/(np.sqrt(1-nr**2*t1**2)*np.sqrt(1-t1**2)), 0, 1)
     E = integrate.quad(lambda t1: np.sqrt(1-nr**2*t1**2)/np.sqrt(1-t1**2), 0, 1)
 
-    # ksi, u1, u2
+    # ksi, u1, u2,
     ksi = 4/3 * np.sqrt(2/(1-k)) * ((1+k)*K[0]-2*k*E[0])
     u1 = np.pi*(1+k)/(2*ksi)
     u2 = np.pi*(7+5*k)/(12*ksi)
