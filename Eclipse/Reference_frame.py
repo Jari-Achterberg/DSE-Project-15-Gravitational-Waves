@@ -42,7 +42,8 @@ def M_norm(E,e,M):
     return E-e*np.sin(E)-M
 
 #%%
-Or_p = int(np.around(T(mu_sun,a_earth)/60))#Number of points to modelate the orbit
+Or_p = 10000
+#Or_p = int(np.around(T(mu_sun,a_earth)/60))#Number of points to modelate the orbit
 N = 35 #Number of iterations for convergence of the recursive bisection
 
 #%%
@@ -54,7 +55,7 @@ def pos_sun_earth(t,N_max): #Position of the Earth relative to the Sun after t s
     '''
 
     T_pos = T(mu_sun,a_earth) #Period
-    N_p = np.trunc(t/T_pos)
+    N_p = np.trunc(t/T_pos) #Number of periods
     t_adj = t-T_pos*N_p #Adjusted time taking away the posibility of more than one revolution
 
     M = np.sqrt(mu_sun/a_earth**3)*t_adj #E-e*sin(E)
@@ -172,21 +173,22 @@ def pos_sun_sat(begin,end,res,N_max):
     return np.array([vec[0],vec[1],vec[2],angle_sun[0],angle_sun[1],f[3]])
     
 #%%
-'''
-#y_sat = pos_sun_sat('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N) #Function for Sun position relative to satellite
-y_earth = pos_sun_earth_time('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N) #Function for Sun position relative to Earth
 
+#y_sat = pos_sun_sat('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N) #Function for Sun position relative to satellite
+#y_earth = pos_sun_earth_time('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N) #Function for Sun position relative to Earth
+'''
 y_earthT = y_earth.T
 f = open("output.dat","w")
 for i in range(len(y_earthT)):
     line = str(y_earthT[i,0])+","+str(y_earthT[i,1])+","+str(y_earthT[i,2])+","+str(y_earthT[i,3])+"\n"
     f.write(line)
 f.close()
-
+'''
 y_earth = pos_sun_earth_time('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N)
+'''
 y_s = np.matmul(np.array([[0,1,0],[0,0,1],[1,0,0]]),y_earth)
 angle_sun_sat = np.array([np.arctan(y_s[1]/np.sqrt(y_s[0]**2+y_s[2]**2)),np.arctan2(y_s[0],y_s[2])])
-
+'''
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 ax.plot(y_earth[0],y_earth[1],y_earth[2], label='Sun to Earth inclined and days')
@@ -195,4 +197,3 @@ ax.set_xlabel('X Label')
 ax.set_ylabel('Y Label')
 ax.set_zlabel('Z Label')
 plt.show()
-'''
