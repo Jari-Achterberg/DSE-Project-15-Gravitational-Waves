@@ -2,12 +2,8 @@
 
 import numpy as np
 from matplotlib import pyplot as plt
-from Astrodynamics import mu_earth, dV_EOL, dV_eighty_km, dV_circularisation, dV_maintenance, dV_120, dV_realignment, total_delta_v
+from Astrodynamics import mu_earth, total_delta_v, dV_in_orbit, dV_circularisation
 from scipy import integrate
-
-# input parameters
-m_i = 20    # kg
-g0 = 9.81
 
 
 def Transfer_Time(m, I_sp, T, r, r0):
@@ -38,6 +34,7 @@ def rocket_equation_reversed(delta_v, isp, m_i):
 
 
 def Time_Transfer():
+    # NOT USED ANYMORE
     # This function calculates the time it takes for a transfer from an arbitrary orbit to GEO
     # inputs are given within this function, should be adjusted in the future
     # inputs are: eccentricity of initial orbit (e0), semi major axis initial and final orbit (a0 and af),
@@ -109,85 +106,95 @@ def Time_Transfer():
     t = dv/F
     return t
 
-'''
-tt = Time_Transfer()
 
-print("days: ", tt/3600/24)
-'''
+# input parameters
+m_i = 16.5    # kg
+g0 = 9.81
+
+
 # Chemical propulsion (impulsive manoeuvres)
-# Only circularisation
-
-delta_v = dV_circularisation * 1000
+# delta_v == only
+# check for usage of including transfer (delta-v-2) or excluding transfer (delta-v-1)
+delta_v = dV_in_orbit * 1000
 delta_v_2 = total_delta_v * 1000
 # all options considered from left to right: (6 options)
-# Hydros-C, Lunar Flashlight MiPS, Argomoon Hibrid MiPS, Green Hybdrid, GR-1, 1 N GPHP, EPSS 1CKK # chemical
-# last one FFPPTT
+# Hydros-C, Lunar Flashlight MiPS, Argomoon Hibrid MiPS, Green Hybdrid, GR-1, 1 N GPHP, EPSS C1K    # chemical
+# specific impulses, thrust levels and densities per option:
 isps = [310, 190, 190, 215, 231, 204, 213]
-rho = [1.0, 1.1, 1.1, 1.1, 1.1, 1.1, 1.81]
-v = 6.4088 * 1000
-dV_test_list = []
-for p, isp0 in enumerate(isps):
-    dV_test = rocket_equation(isp0, m_i, v, rho[p])
-    dV_test_list.append(dV_test)
+rho = [1.0, 1.1, 1.1, 1.1, 1.1, 1.2648, 1.2648]
+T = [1.2, 0.4, 0.1, 8, 0.26, 0.25, 0.22, 50/(10**6)]
 
-print(dV_test_list)
-T = [1.2, 0.4, 0.1, 8, 0.26, 0.25, 1, 50/(10**6)]
+# calculate propellant mass of each propellant type for the two delta-v options
+# calculate burn time with the found propellant mass
 Mp_list, Mp_list_2 = [], []
 for i, isp in enumerate(isps):
+
+    # prop masses
     Mp = rocket_equation_reversed(delta_v, isp, m_i)
     Mp_2 = rocket_equation_reversed(delta_v_2, isp, m_i)
     Mp_list.append(Mp)
     Mp_list_2.append(Mp_2)
 
+    # times
     ttt = delta_v/(T[i]/m_i)
-    print("time:", ttt)
+    # print("time:", ttt)
+    mass_flow = T[i]/(isp*g0)
+    t1t = Mp/mass_flow
+    # print("time-t", t1t)
 
-
+# print all masses for comparison
 print(Mp_list)
 print(Mp_list_2)
 
-# All manoeuvres
-T = [1.2, 0.4, 0.1, 8, 0.26, 0.25, 1, 50/(10**6)]
+# volume calculation using EPSS 1CK (the best option)
+v_epss = Mp_list[-1] * 1000 / rho[-1]
+
+
 # Electric propulsion (non-impulsive manoeuvres)
-# - 80km corrections?
-# - phase shift towards constellation?
-# - realignment?
-# - orbit maintenances
-# - End Of Life manoeuvre?
-
-m = m_i
+# Check whether electric is possible or not
+# ----------------------------
+# options for electric, with their specific impulses and thrust levels
 # PPTCUP, mu-CAT, PUC, Resistojet System, electrospray, MPACS, enpulsion, FFPT
-isps_2 = [655, 3000, 70, 99, 800, 827, 3000, 1600]
-T_2 = [40/(10**6), 50/(10**6), 5/1000, 100/1000, 0.7/1000, 80/(10**6),0.35/1000, 0.35/1000]
-r = 42164
-# r0 = 200 + 6378
-# r0 = 1500 + 6378
-r0 = r - 106
-t_list = []
+isps_2 = [655, 3000, 70, 99, 800, 827, 3000, 1600, 2000]
+T_2 = [40/(10**6), 50/(10**6), 5/1000, 100/1000, 0.7/1000, 80/(10**6),0.35/1000, 0.35/1000, 235/(10**6)]
 
+# assuming circular to circular orbit (LEO to GEO) can also be used to check smaller changes
+r = 42164
+r0 = 200 + 6378
+
+t_list = []
 for i in range(len(isps_2)):
-    t = Transfer_Time(m, isps_2[i], T_2[i] / 1000, r, r0)
+    t = Transfer_Time(m_i, isps_2[i], T_2[i] / 1000, r, r0)
     t /= 60
     t /= 60
     t /= 24
     t_list.append(t)
 
-
+# print list with times for comparison
 print("transfer times: ", t_list)
-
-Isp = 100
-T_test = 0
-t_test_list = []
-T_test_list = []
-for i in range(100):
-    T_test += 1/10000
-    t_test = Transfer_Time(m, Isp, T_test / 1000, r, r0)
-    t_test /= 3600
-    t_test /= 24
-    T_test_list.append(T_test)
-    t_test_list.append(t_test)
-
-print(T_test_list[-1], t_test_list[-1])
-plt.plot(T_test_list, t_test_list)
-plt.show()
-
+# test
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
