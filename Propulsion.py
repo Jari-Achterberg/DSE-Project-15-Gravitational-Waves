@@ -172,3 +172,29 @@ for i in range(len(isps_2)):
 
 # print list with times for comparison
 print("transfer times: ", t_list)
+# test
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
