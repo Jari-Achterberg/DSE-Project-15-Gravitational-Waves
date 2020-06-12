@@ -2,7 +2,7 @@
 
 import numpy as np
 from matplotlib import pyplot as plt
-from Astrodynamics import mu_earth, total_delta_v, dV_in_orbit, dV_circularisation
+from Astrodynamics import mu_earth, total_delta_v, dV_in_orbit, dV_circularisation, dV_rea
 from scipy import integrate
 
 
@@ -172,29 +172,3 @@ for i in range(len(isps_2)):
 
 # print list with times for comparison
 print("transfer times: ", t_list)
-# test
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#

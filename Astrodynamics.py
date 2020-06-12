@@ -80,8 +80,5 @@ r2_EOL = r1_EOL + 300       # assume EOL orbit is 300 km higher
 dV_EOL = Hohmann(r1_EOL, r2_EOL, mu_earth, r_earth)
 # TEST
 #### total, correction of 10% is assumed
-# total_delta_v = (dV_EOL + dV_eighty_km + dV_realignment + dV_maintenance + abs(dV_120) + dV_circularisation)*1.1
-#dV_in_orbit = 1.1*dV_circularisation - total_delta_v
-#
-#
-#
+total_delta_v = (dV_EOL + dV_eighty_km + dV_realignment + dV_maintenance + abs(dV_120) + dV_circularisation)*1.1
+dV_in_orbit = total_delta_v - 1.1*dV_circularisation
