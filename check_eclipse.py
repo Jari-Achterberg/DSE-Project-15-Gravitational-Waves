@@ -110,7 +110,7 @@ def check_if_in_shadow(psi, a_sat_vector, sun_pos):
     return check
 
 
-sun_vecs = np.load("sun_vectors.npy")
+sun_vecs = np.load("/Users/Federico/Documents/GitHub/DSE-Project-15-Gravitational-Waves/sun_vectors.npy")
 
 sat_pos_polar = sat_2d_pos(0.5)
 sat_2d_pos_cart = xi_eta(sat_pos_polar)
@@ -129,6 +129,6 @@ for sun_vec in sun_vecs:
 
 
 print("Done with iterations")
-
+np.save("/Users/Federico/Documents/GitHub/DSE-Project-15-Gravitational-Waves/ADCS/eclipse_check", eclipse)
 plt.plot(eclipse)
 plt.show()

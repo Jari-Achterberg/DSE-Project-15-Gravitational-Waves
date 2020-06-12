@@ -1,8 +1,10 @@
-import numpy as np
+import scipy as np
 import math as m
 import matplotlib.pyplot as plt
+from Eclipse.Reference_frame import pos_sun_sat
+import time
 
-
+#Constants
 J = 1367 # W/m^2
 c = 3e8 # m/s
 q = 0.88
@@ -11,24 +13,32 @@ width = 0.20 #x-axis [m]
 length = 0.20 #z-axis [m]
 cg = 0.1,0.15,0.1 #assumed
 
-#angle between the sun and the satellite in a specific reference system
-alphas = np.arange(0, 2 * np.pi, 0.001 * np.pi)#sun around z-axis
 
+#for one day
+'''
+Or_p = 86400
+alphas = np.linspace(0, 2 * np.pi, num = 86400)#sun around z-axis
+betas = 23.3*np.pi/180
+t = np.arange(0, 86400)
+'''
+#for one year
 
-betas1 = np.arange(0.122, np.pi/6 , 0.001 * np.pi)
-betas2 = np.arange(0.122, np.pi/6 , 0.001 * np.pi)[::-1]
+Or_p = 525981  #Number of points to modelate the orbit
+N = 35 #Number of iterations for convergence of the recursive bisection
+y_sat = pos_sun_sat('2000-01-01T00:00:00','2001-01-01T00:00:00', Or_p, N)
+alphas =  y_sat[4]
+betas = y_sat[3]
+t = y_sat[5]*(1/3600)*(1/24)
 
+#Definitions
 
-betas = np.concatenate((betas1,betas2,betas1,betas2,betas1,betas2,betas1,betas2,betas1,betas2)) #sun around y-axis
-#betas = np.zeros(len(alphas))
-
-def transformation(a):
+def transformation(a): #to project center of gravity in 2D
     A = np.array([(0, 0, 1), (1, 0, 0)])
     B = np.array([a[0], a[1], a[2]])
     C = np.dot(A,B)
     return C
 
-def SolarArea(height,width,length,alpha,beta):
+def SolarArea(height,width,length,alpha,beta): #Computes which faces of the satellite are facing the sun and how mu radiation they get
     v_width = abs(width * np.cos(alpha)) #side facing earth
     v_height = abs(height * np.cos(beta))
     v_area = v_width * v_height
@@ -49,31 +59,46 @@ def SolarArea(height,width,length,alpha,beta):
     cp = np.array(cp)
     return total_area, cp
 
+# Code
 
+eclipse = np.load('/Users/Federico/Documents/GitHub/DSE-Project-15-Gravitational-Waves/ADCS/eclipse_check.npy')
 
 Torque_sun = []
+Area_exposed = []
 cg_2d = transformation(cg)
-for i in range(len(betas)):
-    A, cp = SolarArea(height,width,length,alphas[i],betas[i])
-    F = (J/c)*A*(1+q)
-    r = m.sqrt((cg_2d[0]- cp[0])**2+(cg_2d[1]-cp[1])**2)
-    T = F*r
-    Torque_sun.append(T)
-
-
-
-
+for i in range(len(alphas)):
+    if eclipse[i] == 0:
+        A, cp = SolarArea(height,width,length,alphas[i],betas[i])
+        F = (J/c)*A*(1+q)
+        r = m.sqrt((cg_2d[0]- cp[0])**2+(cg_2d[1]-cp[1])**2)
+        T = F*r
+        Torque_sun.append(T)
+        Area_exposed.append(A)
+    else:
+        A = 0
+        T = 0
+        Torque_sun.append(T)
+        Area_exposed.append(A)
+'''
+time1 = []
+for i in range(len(t)):
+    t1 = t[i] + 1925383546
+    t2 = time.ctime(t1)
+    time1.append(t2)
+'''
+H = np.trapz(Torque_sun,t) #Angular Momentum
 #figure
 
 fig = plt.figure(figsize = (7,5))
-fig.suptitle('Title of the Graph', fontsize=18, fontweight='bold')
+fig.suptitle('Area', fontsize=18, fontweight='bold')
 
 axs = fig.add_subplot(1,1,1)
-axs.plot(alphas[:len(betas)], Torque_sun , color = '#00A6D6', label = 'label')
+axs.plot(t, Area_exposed, color = '#00A6D6', label = 'label')
 
 
-axs.set_ylabel('ylabel', fontsize=14)
-axs.set_xlabel('Time [s]', fontsize = 14)
+
+axs.set_ylabel('Area [m^2]', fontsize=14)
+axs.set_xlabel('Time [Days]', fontsize = 14)
 axs.tick_params(axis='both', which='major', labelsize=10)
 axs.grid(b = None, which = 'both', axis = 'both')
 
