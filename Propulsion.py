@@ -24,7 +24,7 @@ def rocket_equation(isp, m_i, v, rho):
 
     w = isp * g0
     m_f = m_i - mp
-    #print(m_i, m_f)
+    print(m_i, m_f)
     delta_v2 = w * np.log(m_i/m_f)
     return delta_v2
 
@@ -130,7 +130,7 @@ for p, isp0 in enumerate(isps):
     dV_test = rocket_equation(isp0, m_i, v, rho[p])
     dV_test_list.append(dV_test)
 
-#print(dV_test_list)
+print(dV_test_list)
 T = [1.2, 0.4, 0.1, 8, 0.26, 0.25, 1, 50/(10**6)]
 Mp_list, Mp_list_2 = [], []
 for i, isp in enumerate(isps):
@@ -140,11 +140,11 @@ for i, isp in enumerate(isps):
     Mp_list_2.append(Mp_2)
 
     ttt = delta_v/(T[i]/m_i)
-    #print("time:", ttt)
+    print("time:", ttt)
 
 
-#print(Mp_list)
-#print(Mp_list_2)
+print(Mp_list)
+print(Mp_list_2)
 
 # All manoeuvres
 T = [1.2, 0.4, 0.1, 8, 0.26, 0.25, 1, 50/(10**6)]
@@ -173,7 +173,7 @@ for i in range(len(isps_2)):
     t_list.append(t)
 
 
-#print("transfer times: ", t_list)
+print("transfer times: ", t_list)
 
 Isp = 100
 T_test = 0
@@ -187,11 +187,7 @@ for i in range(100):
     T_test_list.append(T_test)
     t_test_list.append(t_test)
 
-#print(T_test_list[-1], t_test_list[-1])
-#plt.plot(T_test_list, t_test_list)
-#plt.show()
-
-
-# transfer time feeps
-print(Transfer_Time(16.5, 2800, 0.00000037, 42164.136, 250+6378.136))
+print(T_test_list[-1], t_test_list[-1])
+plt.plot(T_test_list, t_test_list)
+plt.show()
 
