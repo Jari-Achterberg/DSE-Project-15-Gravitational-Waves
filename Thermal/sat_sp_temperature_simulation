@@ -1,0 +1,126 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+plt.close()
+
+
+def k_to_c(T):
+    return T - 273.15
+
+
+def c_to_k(T):
+    return T + 273.15
+
+
+def get_temperature(E, H):
+    return E / H
+
+
+# initial values
+t_0 = 0  # seconds
+T_0 = c_to_k(20)  # kelvin
+
+# Solar panels (6 in total)
+sp_frontal_area = (0.048 / 15) * 16  # 16 cells of 0.04x0.08
+sp_thickness = 0.002
+sp_emitting_area = 2 * sp_frontal_area
+sp_emissivity = 0.475  # average of solar cells (0.9) and aluminized kapton foil (0.05)
+sp_specific_heat = 1507  # J/kgC, albemet
+sp_volume = sp_frontal_area * sp_thickness
+sp_density = 2100  # kg/m³, albemet
+sp_weight = sp_volume * sp_density
+sp_heat_capacity = sp_weight * sp_specific_heat  # J/C
+sp_E_0 = T_0 * sp_heat_capacity
+
+# Satellite
+sat_emitting_area = 0.32
+sat_weight = 20
+sat_emissivity = 0.045
+sat_specific_heat = 1200  # J/kgC, combination of materials
+sat_heat_capacity = sat_weight * sat_specific_heat
+sat_heat_generation = 22  # total heat generation from the different subsystems
+sat_E_0 = T_0 * sat_heat_capacity
+
+Boltzmann = 5.67 * 10 ** (-8)  # Boltzmann constant
+
+
+def get_space_radiation(emissivity, emitting_area, E, H):
+    return emissivity * emitting_area * Boltzmann * (get_temperature(E, H) ** 4)
+
+
+def get_sat_to_sp_heat_flow(sat_E, sp_E, k):  # heat flow (in W) from the satellite to ONE solar panel
+    sat_temp = get_temperature(sat_E, sat_heat_capacity)
+    sp_temp = get_temperature(sp_E, sp_heat_capacity)
+    return (sat_temp - sp_temp) * k
+
+
+eclipse_period = 92 * 60  # 92 minutes
+dt = 0.1  # seconds
+
+
+def simulate(k):
+    sp_T_data = []
+    sat_T_data = []
+    t_data = []
+    q_data = []
+
+    sp_E = sp_E_0
+    sat_E = sat_E_0
+    t = t_0
+
+    while (t < eclipse_period):
+        t_data.append(t / 60)
+        sp_T_data.append(k_to_c(get_temperature(sp_E, sp_heat_capacity)))
+        sp_E = sp_E + get_sat_to_sp_heat_flow(sat_E, sp_E, k) - get_space_radiation(sp_emissivity, sp_emitting_area,
+                                                                                    sp_E, sp_heat_capacity)
+        sat_T_data.append(k_to_c(get_temperature(sat_E, sat_heat_capacity)))
+        sat_change = sat_heat_generation - 6 * get_sat_to_sp_heat_flow(sat_E, sp_E, k) - get_space_radiation(
+            sat_emissivity, sat_emitting_area, sat_E, sat_heat_capacity)
+        q_data.append(get_sat_to_sp_heat_flow(sat_E, sp_E, k))
+        if sat_change > 0:
+            sat_change = 0
+
+        sat_E = sat_E + sat_change
+        t = t + dt
+    print(q_data[-1])
+    return (sp_T_data, sat_T_data, t_data)
+
+
+spss = []
+satss = []
+tss = []
+ks = []
+for k in [0, 0.02, 0.025, 0.06]:
+    sps, sats, ts = simulate(k)
+    spss.append(sps)
+    satss.append(sats)
+    tss.append(ts)
+    ks.append(k)
+    print(sats[-1], sps[-1])
+
+fig = plt.figure(figsize=(7, 5))
+fig.suptitle('Temperatures during eclipse', fontsize=18, fontweight='bold')
+
+ax1 = fig.add_subplot(1, 2, 1)
+ax1.plot(tss[0], spss[0], label='k = ' + str(ks[0]))
+ax1.plot(tss[1], spss[1], label='k = ' + str(ks[1]))
+ax1.plot(tss[2], spss[2], label='k = ' + str(ks[2]))
+ax1.plot(tss[3], spss[3], label='k = ' + str(ks[3]))
+ax1.set_ylabel('Temperature [C]', fontsize=14)
+ax1.set_xlabel('Time [Minutes]', fontsize=14)
+ax1.tick_params(axis='both', which='major', labelsize=10)
+ax1.grid(b=None, which='both', axis='both')
+ax1.set_title("Solar panels")
+ax1.legend()
+
+ax2 = fig.add_subplot(1, 2, 2)
+ax2.plot(tss[0], satss[0], label='k = ' + str(ks[0]))
+ax2.plot(tss[1], satss[1], label='k = ' + str(ks[1]))
+ax2.plot(tss[2], satss[2], label='k = ' + str(ks[2]))
+ax2.plot(tss[3], satss[3], label='k = ' + str(ks[3]))
+ax2.set_ylabel('Temperature [C]', fontsize=14)
+ax2.set_xlabel('Time [Minutes]', fontsize=14)
+ax2.tick_params(axis='both', which='major', labelsize=10)
+ax2.grid(b=None, which='both', axis='both')
+ax2.set_title("Spacecraft body")
+ax2.legend()
