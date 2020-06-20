@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-#import Reference_frame
+import Reference_frame
 
 #%%
 #Verification of the period formula: The result of this when using the Sun gravitational parameter and Earth distance should be around 365 days.
@@ -24,6 +24,14 @@ plt.show()
 #%%
 
 
+
+T_pos = Reference_frame.T(Reference_frame.mu_sun,Reference_frame.a_earth) #Period
+t = np.linspace(0,T_pos-1,3)
+N_p = np.trunc(t/T_pos) #Number of periods
+t_adj = t-T_pos*N_p #Adjusted time taking away the posibility of more than one revolution
+
+M = np.sqrt(Reference_frame.mu_sun/Reference_frame.a_earth**3)*t_adj #E-e*sin(E)
+
 def rec_bis(N_max):
     '''
     :param a_0: Upper limit (has to be greater than zero)
@@ -32,21 +40,26 @@ def rec_bis(N_max):
     :return: Returns the value of the function using recursive bisection. In this case, E
     '''
     y = []
-    a = 2*np.pi  # Upper limit
-    b = -2*np.pi  # Lower limit
+    a = 2*np.pi*np.ones(len(t_adj))  # Upper limit
+    b = -2*np.pi*np.ones(len(t_adj))  # Lower limit
     for i in range(N_max):
         c = (a + b) / 2
-        if Reference_frame.M_norm(a, Reference_frame.ecc_earth, np.pi-0.001) * Reference_frame.M_norm(c, Reference_frame.ecc_earth, np.pi-0.001) <= 0:
-            b = c
-        else:
-            a = c
+        TrueFalse = Reference_frame.M_norm(a, Reference_frame.ecc_earth, M) * Reference_frame.M_norm(c, Reference_frame.ecc_earth, M) <= np.zeros(len(t_adj)) 
+            #If I just put '<', there is an error at M=np.pi. This is something that should be looked into if there's time
+        b = c*TrueFalse+b*np.invert(TrueFalse)
+        a = a*TrueFalse+c*np.invert(TrueFalse)
         y.append(c)
     y = np.array(y)
     return y
 
-a = rec_bis(70)
-print(a)
-plt.plot(rec_bis(70))
+k=['solid','dotted','dashed']
+a = np.transpose(rec_bis(16))
+for g, f in zip(a,k):
+    plt.plot(g, linestyle=f)
+plt.xlabel('Number of iterations')
+plt.ylabel('Eccentric anomaly [rad]')
+plt.legend([r'$\theta = 0 [rad]$',r'$\theta = \pi [rad]$',r'$\theta = 2\pi [rad]$'])
+plt.show()
 
 #%%
 t = np.linspace(1,10,10)

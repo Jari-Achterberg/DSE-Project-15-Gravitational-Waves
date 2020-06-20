@@ -90,7 +90,7 @@ def pos_sun_earth(t,N_max): #Position of the Earth relative to the Sun after t s
    
     r_pos = r(a_earth,ecc_earth,theta_p) # Get the module of the r vector
     
-    v_fin = np.array([r_pos*np.cos(theta_p)*np.cos(i_earth),r_pos*np.sin(theta_p),r_pos*np.cos(theta_p)*np.sin(i_earth)]) #Get the position in cartesian coordinates
+    v_fin = np.array([r_pos*np.cos(theta_p)*np.cos(i_earth),r_pos*np.sin(theta_p),r_pos*np.cos(theta_p)*np.sin(i_earth)]) #Get the position in cartesian coordinates. This is the position of the Earth relative to the Sun.
     v_fin = -1*v_fin #Position of the sun relative to the Earth in a non-inclined and no-spinning axis of Earth 
     v_fin = np.matmul(T_polar,v_fin) #Calculation of Sun position relative to Earth accounting for polar inclination
 
@@ -174,7 +174,7 @@ def pos_sun_sat(begin,end,res,N_max):
     
 #%%
 
-#y_sat = pos_sun_sat('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N) #Function for Sun position relative to satellite
+y_sat = pos_sun_sat('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N) #Function for Sun position relative to satellite
 #y_earth = pos_sun_earth_time('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N) #Function for Sun position relative to Earth
 '''
 y_earthT = y_earth.T
@@ -184,14 +184,24 @@ for i in range(len(y_earthT)):
     f.write(line)
 f.close()
 '''
-y_earth = pos_sun_earth_time('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N)
+#y_earth = pos_sun_earth_time('2000-01-01T00:00:00','2001-01-01T00:00:00',Or_p,N)
 '''
 y_s = np.matmul(np.array([[0,1,0],[0,0,1],[1,0,0]]),y_earth)
 angle_sun_sat = np.array([np.arctan(y_s[1]/np.sqrt(y_s[0]**2+y_s[2]**2)),np.arctan2(y_s[0],y_s[2])])
-'''
+
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 ax.plot(y_earth[0],y_earth[1],y_earth[2], label='Sun to Earth inclined and days')
+ax.legend()
+ax.set_xlabel('X Label')
+ax.set_ylabel('Y Label')
+ax.set_zlabel('Z Label')
+plt.show()
+'''
+
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+ax.plot(y_sat[0],y_sat[1],y_sat[2], label='Sun to Earth inclined and days')
 ax.legend()
 ax.set_xlabel('X Label')
 ax.set_ylabel('Y Label')
